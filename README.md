@@ -1,11 +1,59 @@
 # MO-IT101-Group48
 CP1-MS2 MotorPH Payroll System 
-Basic Payroll Program
 
-This program reads employee information and attendance records from CSV files, calculates the total hours worked per payroll cutoff, and displays a simple salary summary.
+1. Project Description
 
-How the Program Works
-Imports
+The MotorPH Payroll System is a Java-based program that reads employee information and attendance records from CSV files and calculates the total hours worked per payroll cutoff period.
+
+The system processes attendance logs and summarizes work hours according to MotorPH’s payroll schedule:
+
+Cutoff 1: Day 1–15
+
+Cutoff 2: Day 16–End of Month
+
+This milestone focuses on file processing, attendance computation, and payroll summary display.
+
+2. System Objectives
+
+The program aims to:
+
+Read employee information from a CSV file.
+
+Retrieve attendance records for a specific employee.
+
+Compute daily working hours using login and logout times.
+
+Group total hours based on payroll cutoff periods.
+
+Display a payroll summary for each cutoff.
+
+3. System Architecture
+Data Source
+
+The system reads two CSV files:
+
+File	Description
+Employee Details CSV	Contains employee personal information
+Attendance Record CSV	Contains daily login and logout times
+Project Directory Structure
+MotorPH-Payroll-System
+│
+├── resources
+│   ├── MotorPH_Employee Data - Employee Details.csv
+│   └── MotorPH_Employee Data - Attendance Record.csv
+│
+├── src
+│   └── MotorPH.java
+│
+└── README.md
+4. Technologies Used
+Technology	Purpose
+Java	Main programming language
+CSV Files	Data storage for employee and attendance records
+Java Time API	Handling login/logout times
+BufferedReader	Reading CSV files
+Scanner	User input handling
+5. Java Libraries Used
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.time.Duration;
@@ -13,235 +61,182 @@ import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
+Explanation
+Library	Purpose
+BufferedReader	Reads file line by line
+FileReader	Opens CSV file
+LocalTime	Handles time values
+Duration	Calculates time difference
+YearMonth	Gets number of days in a month
+DateTimeFormatter	Formats time strings
+Scanner	Accepts user input
+6. Program Execution Flow
+Step 1 – User Input
 
-BufferedReader and FileReader are used to read CSV files line by line.
+The program requests the employee number.
 
-LocalTime and Duration are used to handle time values and compute hours worked.
+Enter Employee #:
 
-YearMonth helps determine the number of days in a month.
+This value will be used to search the employee details file.
 
-DateTimeFormatter formats the time values from the CSV file.
+Step 2 – Load Employee Details
 
-Scanner is used to get input from the user.
+The system reads the employee CSV file and searches for the entered employee number.
 
-Main Class and Method
-public class MotorPH {
-    public static void main(String[] args) {
+Processing steps:
 
-MotorPH is the main class of the program.
+Open employee details CSV file.
 
-The main method is the starting point where the program begins execution.
+Skip the header row.
 
-File Paths and Scanner
-String empFile = "resources/MotorPH_Employee Data - Employee Details.csv";
-String attFile = "resources/MotorPH_Employee Data - Attendance Record.csv";
-Scanner sc = new Scanner(System.in);
+Read each line.
 
-empFile and attFile store the file paths of the employee and attendance CSV files.
+Split data using commas.
 
-Scanner sc is used to read input from the keyboard.
+Compare employee number.
 
-Get Employee Number
-System.out.print("Enter Employee #: ");
-String inputEmpNo = sc.nextLine();
+If the employee exists, the following details are stored:
 
-The program asks the user to enter an employee number.
+Employee Number
 
-The entered value will be used to search for the employee in the CSV file.
+Last Name
 
-Prepare Variables
-String empNo = "";
-String firstName = "";
-String lastName = "";
-String birthday = "";
-boolean found = false;
+First Name
 
-These variables store employee information once the record is found.
+Birthday
 
-found is used to check whether the employee exists in the file.
+If the employee does not exist, the system prints:
 
-Read Employee Details
-try (BufferedReader br = new BufferedReader(new FileReader(empFile))) {
-    br.readLine(); // Skip header
-    String line;
+Employee does not exist.
+7. Display Employee Information
 
-    while ((line = br.readLine()) != null) {
-        if (line.trim().isEmpty()) continue;
+Once the employee record is found, the program prints:
 
-        String[] data = line.split(",");
+===================================
+Employee # :
+Employee Name :
+Birthday :
+===================================
 
-        if (data[0].equals(inputEmpNo)) {
-            empNo = data[0];
-            lastName = data[1];
-            firstName = data[2];
-            birthday = data[3];
-            found = true;
-            break;
-        }
-    }
-} catch (Exception e) {
-    System.out.println("Error reading employee file.");
-    return;
-}
+This confirms the selected employee before processing attendance.
 
-The program reads the employee CSV file line by line.
+8. Attendance Processing
 
-The header row is skipped.
+The program processes attendance records from:
 
-Each row is split using commas to separate the fields.
+June – December 2024
 
-The employee number is compared with the user input.
+For each month, two counters are used:
 
-If a match is found, the employee information is stored.
+Variable	Description
+firstHalf	Total hours from day 1–15
+secondHalf	Total hours from day 16–end
 
-Check if Employee Exists
-if (!found) {
-    System.out.println("Employee does not exist.");
-    return;
-}
+The last day of each month is calculated using:
 
-If the employee number is not found in the file, the program stops.
+YearMonth.of(2024, month).lengthOfMonth();
+9. Reading Attendance Records
 
-Display Employee Information
-System.out.println("\n===================================");
-System.out.println("Employee # : " + empNo);
-System.out.println("Employee Name : " + lastName + ", " + firstName);
-System.out.println("Birthday : " + birthday);
-System.out.println("===================================");
+The system reads the attendance CSV file line by line.
 
-The program displays the employee number, full name, and birthday.
+Processing steps:
 
-Prepare Time Format
-DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("H:mm");
+Skip the header row.
 
-This tells Java how to read the login and logout time values from the CSV file.
+Ignore empty rows.
 
-Process Attendance by Month
-for (int month = 6; month <= 12; month++) {
-    double firstHalf = 0;
-    double secondHalf = 0;
-    int daysInMonth = YearMonth.of(2024, month).lengthOfMonth();
+Split the row using commas.
 
-The program loops from June to December 2024.
+Process only rows that match the selected employee number.
 
-firstHalf stores hours worked from day 1 to 15.
+10. Date and Time Processing
 
-secondHalf stores hours worked from day 16 to the end of the month.
+Each attendance record contains:
 
-daysInMonth determines the total days in the month.
+Field	Description
+Date	Attendance date
+Log In	Employee login time
+Log Out	Employee logout time
 
-Read Attendance File
-try (BufferedReader br = new BufferedReader(new FileReader(attFile))) {
-    br.readLine(); // Skip header
-    String line;
+Example values:
 
-    while ((line = br.readLine()) != null) {
-        if (line.trim().isEmpty()) continue;
+06/03/2024
+8:59
+18:31
 
-        String[] data = line.split(",");
+Time values are parsed using:
 
-        if (!data[0].equals(empNo)) continue;
+DateTimeFormatter.ofPattern("H:mm");
+11. Computing Daily Work Hours
 
-The program reads the attendance CSV file line by line.
+The system calculates hours worked using the method:
 
-Empty rows are skipped.
+computeHours(LocalTime login, LocalTime logout)
+Work Rules Applied
+Rule	Value
+Grace Period	8:10 AM
+Work End Time	5:00 PM
+Lunch Break	1 Hour
+Maximum Work Hours	8 Hours
+Logic
 
-Only records that match the selected employee number are processed.
+If logout exceeds 5:00 PM, it is adjusted to 5:00 PM.
 
-Parse Date and Time
-String[] dateParts = data[3].split("/");
-int recordMonth = Integer.parseInt(dateParts[0]);
-int day = Integer.parseInt(dateParts[1]);
-int year = Integer.parseInt(dateParts[2]);
+Total minutes worked are calculated.
 
-if (year != 2024 || recordMonth != month) continue;
+60 minutes are deducted for lunch.
 
-LocalTime login = LocalTime.parse(data[4].trim(), timeFormat);
-LocalTime logout = LocalTime.parse(data[5].trim(), timeFormat);
+Minutes are converted to hours.
 
-double hours = computeHours(login, logout);
+Hours are limited to maximum of 8 hours.
 
-The date is split into month, day, and year.
+If login is before 8:10 AM, the employee receives the full 8 hours credit.
 
-Only records from the correct month and year (2024) are processed.
+12. Payroll Cutoff Assignment
 
-Login and logout times are parsed.
+Hours worked are grouped based on the day of the month.
 
-The computeHours() method calculates the hours worked.
+Day	Payroll Cutoff
+1–15	First Cutoff
+16–End	Second Cutoff
+13. Payroll Summary Output
 
-Add Hours to Payroll Cutoffs
-if (day <= 15)
-    firstHalf += hours;
-else
-    secondHalf += hours;
+For each month, the program prints the summary.
 
-If the day is 1–15, hours are added to the first payroll cutoff.
+First Cutoff (1–15)
+Total Hours Worked
+Gross Salary
+Net Salary
+Second Cutoff (16–End)
+Total Hours Worked
+Gross Salary
+Deductions
+SSS
+PhilHealth
+Pag-IBIG
+Tax
+Net Salary
 
-If the day is 16–end of month, hours are added to the second cutoff.
+Salary and deduction values are currently placeholders.
 
-Display Payroll Summary
-System.out.println("\nCutoff Date: " + monthName + " 1 to 15");
-System.out.println("Total Hours Worked : " + firstHalf);
-System.out.println("Gross Salary: ");
-System.out.println("Net Salary: ");
+14. Current System Limitations
 
-System.out.println("\nCutoff Date: " + monthName + " 16 to " + daysInMonth);
-System.out.println("Total Hours Worked : " + secondHalf);
-System.out.println("Gross Salary: ");
-System.out.println("Deductions: ");
-System.out.println(" SSS: ");
-System.out.println(" PhilHealth: ");
-System.out.println(" Pag-IBIG: ");
-System.out.println(" Tax: ");
-System.out.println("Net Salary: ");
+The system only processes attendance records from 2024.
 
-The program displays the payroll cutoff dates and total hours worked.
+Salary and deduction calculations are not yet implemented.
 
-Gross salary, deductions, and net salary are placeholders for future implementation.
+CSV files must remain inside the resources folder.
 
-Compute Hours Method
-static double computeHours(LocalTime login, LocalTime logout) {
+15. Future Improvements
 
-    LocalTime graceTime = LocalTime.of(8, 10);
-    LocalTime cutoffTime = LocalTime.of(17, 0);
+The following features may be added in future milestones:
 
-    if (logout.isAfter(cutoffTime)) {
-        logout = cutoffTime;
-    }
+Salary computation based on hourly rate
 
-    long minutesWorked = Duration.between(login, logout).toMinutes();
+Automatic calculation of deductions (SSS, PhilHealth, Pag-IBIG, Tax)
 
-    if (minutesWorked > 60) {
-        minutesWorked -= 60; // Lunch break
-    } else {
-        minutesWorked = 0;
-    }
+Support for multiple payroll years
 
-    double hours = minutesWorked / 60.0;
+Export payroll results to a file
 
-    if (!login.isAfter(graceTime)) {
-        return 8.0; // Full 8 hours if on time
-    }
-
-    return Math.min(hours, 8.0);
-}
-
-Sets the grace period (8:10 AM) and cutoff time (5:00 PM).
-
-Limits logout time to 5:00 PM if later.
-
-Deducts 1 hour for lunch if the employee worked more than one hour.
-
-Converts minutes worked into hours.
-
-Returns the total hours worked, capped at 8 hours per day.
-
-Notes
-
-CSV files must be located inside the resources folder.
-
-The program currently shows placeholders for salary and deductions, which can be implemented later.
-
-The system processes attendance records for year 2024 only.
-
-Payroll cutoffs are 1–15 and 16–end of month.
+Graphical user interface (GUI)
